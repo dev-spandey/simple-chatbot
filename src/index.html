@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic Chat Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .chat-container {
+            width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .messages {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .message {
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: #e1f7d5;
+            display: inline-block;
+            max-width: 80%;
+        }
+        .message.user {
+            background-color: #e1f7d5;
+            align-self: flex-end;
+        }
+        .message.bot {
+            background-color: #d1e7fd;
+            align-self: flex-start;
+        }
+        input[type="text"] {
+            width: calc(100% - 110px);
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            width: 80px;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="messages" id="messages">
+        <!-- Chat messages will appear here -->
+    </div>
+    <div class="input-container">
+        <input type="text" id="userInput" placeholder="Type your message..." />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    // Function to display messages in the chat box
+    function displayMessage(message, sender) {
+        const messagesDiv = document.getElementById('messages');
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message', sender);
+        messageElement.innerText = message;
+        messagesDiv.appendChild(messageElement);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    // Function to send the user input to the backend API
+    function sendMessage() {
+        const userInput = document.getElementById('userInput').value;
+        
+        if (userInput.trim() === "") return;
+
+        // Display user's message
+        displayMessage(userInput, 'user');
+        document.getElementById('userInput').value = ''; // Clear input field
+
+        // Call the backend API
+        axios.post('/api/chat', { prompt: userInput })
+            .then(response => {
+                const botResponse = response.data.generated_text;
+                displayMessage(botResponse, 'bot');
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                displayMessage("Sorry, something went wrong.", 'bot');
+            });
+    }
+</script>
+
+</body>
+</html>
